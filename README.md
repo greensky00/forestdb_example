@@ -4,6 +4,7 @@ forestdb_example
 
 Build
 ---
+(Ubuntu only)
 ```sh
 $ ./prepare.sh
 $ make
