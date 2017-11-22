@@ -7,7 +7,7 @@
 #include "test_common.h"
 
 void append_result(std::string& str_out,
-                   std::string stat_name,
+                   const std::string& stat_name,
                    uint64_t num,
                    uint64_t elapsed) {
     char buffer[256];
@@ -127,7 +127,7 @@ int basic_example(uint64_t num) {
 }
 
 int main(int argc, char** argv) {
-    TestSuite ts;
+    TestSuite ts(argc, argv);
 
     ts.doTest( "basic example",
                basic_example,
