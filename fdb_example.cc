@@ -33,11 +33,11 @@ int basic_example(uint64_t num) {
     // Open ForestDB file handle.
     // Each file handle can have multiple KV stores (indexes).
     fs = fdb_open(&db_file, db_path.c_str(), &f_config);
-    CHK_OK(fs == FDB_RESULT_SUCCESS);
+    CHK_EQ(FDB_RESULT_SUCCESS, fs);
 
     // Open default KV store handle.
     fs = fdb_kvs_open_default(db_file, &db, &kvs_config);
-    CHK_OK(fs == FDB_RESULT_SUCCESS);
+    CHK_EQ(FDB_RESULT_SUCCESS, fs);
 
     char keybuf[32];
     char valuebuf[32];
@@ -51,11 +51,11 @@ int basic_example(uint64_t num) {
         sprintf(keybuf, "k%07zu", ii);
         sprintf(valuebuf, "v%07zu", ii);
         fs = fdb_set_kv(db, keybuf, 8, valuebuf, 8);
-        CHK_OK(fs == FDB_RESULT_SUCCESS);
+        CHK_EQ(FDB_RESULT_SUCCESS, fs);
     }
     // Update B+tree at once at the end, and then call fsync().
     fs = fdb_commit(db_file, FDB_COMMIT_NORMAL);
-    CHK_OK(fs == FDB_RESULT_SUCCESS);
+    CHK_EQ(FDB_RESULT_SUCCESS, fs);
 
     elapsed = timer.getTimeUs();
     append_result(result_str, "bulk load", num, elapsed);
@@ -69,7 +69,7 @@ int basic_example(uint64_t num) {
         void* value_out;
         size_t valuelen_out;
         fs = fdb_get_kv(db, keybuf, 8, &value_out, &valuelen_out);
-        CHK_OK(fs == FDB_RESULT_SUCCESS);
+        CHK_EQ(FDB_RESULT_SUCCESS, fs);
 
         // Should free the returned value.
         free(value_out);
@@ -85,15 +85,15 @@ int basic_example(uint64_t num) {
         sprintf(valuebuf, "v%07zu", r);
 
         fs = fdb_set_kv(db, keybuf, 8, valuebuf, 8);
-        CHK_OK(fs == FDB_RESULT_SUCCESS);
+        CHK_EQ(FDB_RESULT_SUCCESS, fs);
 
-        if (ii && ii % 1000 == 0) {
+        if ((ii+1) % 1000 == 0) {
             // For every 1000 set operation,
             // update B+tree and then call fsync().
             // Note that fdb_commit() is very expensive operation so that
             // should avoid calling it for every set() operation.
             fs = fdb_commit(db_file, FDB_COMMIT_NORMAL);
-            CHK_OK(fs == FDB_RESULT_SUCCESS);
+            CHK_EQ(FDB_RESULT_SUCCESS, fs);
         }
     }
     elapsed = timer.getTimeUs();
@@ -104,22 +104,22 @@ int basic_example(uint64_t num) {
     for (uint64_t ii=0; ii<num; ++ii) {
         sprintf(keybuf, "k%07zu", ii);
         fs = fdb_del_kv(db, keybuf, 8);
-        CHK_OK(fs == FDB_RESULT_SUCCESS);
+        CHK_EQ(FDB_RESULT_SUCCESS, fs);
     }
     // Update B+tree at the end, and then call fsync().
     fs = fdb_commit(db_file, FDB_COMMIT_NORMAL);
-    CHK_OK(fs == FDB_RESULT_SUCCESS);
+    CHK_EQ(FDB_RESULT_SUCCESS, fs);
 
     elapsed = timer.getTimeUs();
     append_result(result_str, "bulk delete", num, elapsed);
 
     // Close KV store handle.
     fs = fdb_kvs_close(db);
-    CHK_OK(fs == FDB_RESULT_SUCCESS);
+    CHK_EQ(FDB_RESULT_SUCCESS, fs);
 
     // Close DB file handle.
     fs = fdb_close(db_file);
-    CHK_OK(fs == FDB_RESULT_SUCCESS);
+    CHK_EQ(FDB_RESULT_SUCCESS, fs);
 
     TestSuite::setResultMessage(result_str);
 
